@@ -9,7 +9,6 @@ function App() {
       <div>
         <p>Virtual Closet</p>
       </div>
-      
       <Closet />
     </>
   );

@@ -28,6 +28,19 @@ function Closet() {
           multiple
           style={{ display: 'none' }}
         />
+        <form>
+          <label htmlFor="item-name">Item Name:</label><br />
+          <input type="text" id="item-name" name="item-name" /><br />
+          <label htmlFor="brand">Brand:</label><br />
+          <input type="text" id="brand" name="brand" /><br />
+          <label htmlFor="color">Color:</label><br />
+          <input type="text" id="color" name="color" /><br />
+          <label htmlFor="size">Size:</label><br />
+          <input type="text" id="size" name="size" /><br />
+          <label htmlFor="price">Price:</label><br />
+          <input type="text" id="price" name="price" /><br />
+          <input type="submit" value="Submit" />
+        </form> 
         <div className="closet-area">
             {files.length > 0 &&
             files.map((file, index) => (
