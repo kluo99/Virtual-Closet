@@ -7,6 +7,7 @@ import rembg
 from PIL import Image, ExifTags
 import numpy as np
 import easygui as eg
+from werkzeug.utils import secure_filename
 # from dotenv import dotenv_values
 from models import db, Garment, Category
 # from werkzeug.security import generate_password_hash, check_password_hash
@@ -38,10 +39,24 @@ def get_weather():
         return jsonify(error=str(e)), 500
 
 #route to remove background from images
-@app.route('/api/remove-background', methods=['GET'])
+@app.route('/api/remove-background', methods=['POST'])
 def remove_background():
     try:
-        image_path = './acne.JPG'
+        # Check if a file was uploaded
+        if 'file' not in request.files:
+            return jsonify(error='No file part'), 400
+        file = request.files['file']
+
+        # If the user does not select a file, the browser might
+        # submit an empty file part without a filename, check this
+        if file.filename == '':
+            return jsonify(error='No selected file'), 400
+
+        # Save the uploaded file
+        filename = secure_filename(file.filename)
+        image_path = os.path.join('./', filename)
+        file.save(image_path)
+
         input_image = Image.open(image_path)
         input_array = np.array(input_image)
 
