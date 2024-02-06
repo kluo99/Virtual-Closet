@@ -19,7 +19,7 @@ class Garment(db.Model, SerializerMixin):
     name = db.Column(db.String(100), unique=True, nullable=False)
     brand = db.Column(db.String(100))
     color = db.Column(db.String)
-    garment_image = db.column(db.String)
+    garment_image = db.Column(db.String)
     size = db.Column(db.String)
     price = db.Column(db.Integer)
 

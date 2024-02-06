@@ -17,38 +17,34 @@ function Closet() {
     
       if (uploadedFiles.length > 0) {
         const newFiles = Array.from(uploadedFiles).map(async (file) => {
-          // Create a FormData object and append the file
           const formData = new FormData();
           formData.append('file', file);
     
-          // Send a POST request to the backend
           const response = await fetch('http://127.0.0.1:5555/api/remove-background', {
             method: 'POST',
             body: formData,
           });
     
-          // Get the response as a blob
-          const blob = await response.blob();
+          // Get the response as JSON
+          const data = await response.json();
     
-          // Create an object URL for the blob and return it
-          const url = URL.createObjectURL(blob);
+          // Get the Base64 string from the "url" key
+          const base64String = data.url;
     
-          // Create a new FormData object and append the blob
-          const newFormData = new FormData();
-          newFormData.append('file', blob);
-    
-          // Update the formData state with the new FormData object
-          setFormData(prevFormData => ({
-            ...prevFormData,
-            file: newFormData
-          }));
+          const url = 'data:image/png;base64,' + base64String;
     
           return url;
         });
-    
-        // Wait for all POST requests to complete and update the state
+        
         const urls = await Promise.all(newFiles);
         setFiles(prevFiles => [...prevFiles, ...urls]);
+
+        if (urls.length > 0) {
+          setFormData(prevFormData => ({
+            ...prevFormData,
+            file: urls[0]
+          }));
+        }
       }
     }
 
@@ -62,9 +58,26 @@ function Closet() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-
+  
+    try {
+      const response = await fetch('http://127.0.0.1:5555/api/save-item', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+  
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log(responseData.message); // Log the success message
+      } else {
+        console.log('Failed to save item');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   }
-
 
     return(
     <div className="App">
@@ -80,9 +93,9 @@ function Closet() {
           multiple
           style={{ display: 'none' }}
         />
-        <form>
+        <form onSubmit={handleSubmit}>
           <label htmlFor="item-name">Item Name:</label><br />
-          <input type="text" id="item-name" name="item-name" onChange={handleInputChange} /><br />
+          <input type="text" id="item-name" name="itemName" onChange={handleInputChange} /><br />
           <label htmlFor="brand">Brand:</label><br />
           <input type="text" id="brand" name="brand" onChange={handleInputChange} /><br />
           <label htmlFor="color">Color:</label><br />

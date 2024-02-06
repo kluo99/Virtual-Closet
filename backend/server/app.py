@@ -4,12 +4,14 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 import requests
 import rembg
-from PIL import Image, ExifTags
+from PIL import Image, ExifTags, ImageOps
 import numpy as np
 import easygui as eg
 from werkzeug.utils import secure_filename
 # from dotenv import dotenv_values
 from models import db, Garment, Category
+import base64
+import io
 # from werkzeug.security import generate_password_hash, check_password_hash
 # from flask_bcrypt import Bcrypt
 # from sqlalchemy.orm.exc import NoResultFound
@@ -58,31 +60,49 @@ def remove_background():
         file.save(image_path)
 
         input_image = Image.open(image_path)
+
+        input_image = ImageOps.exif_transpose(input_image)
         input_array = np.array(input_image)
 
         output_array = rembg.remove(input_array)
         output_image = Image.fromarray(output_array)
 
-        # Get the orientation tag from the EXIF metadata
-        for orientation in ExifTags.TAGS.keys():
-            if ExifTags.TAGS[orientation] == 'Orientation':
-                break
+        # Convert the output image to a Base64 string
+        buffered = io.BytesIO()
+        output_image.save(buffered, format="PNG")
+        img_str = base64.b64encode(buffered.getvalue())
+        img_str = img_str.decode('ascii')
 
-        # Apply the rotation to the output image if the input image has an orientation tag
-        if input_image._getexif() is not None and orientation in input_image._getexif():
-            if input_image._getexif()[orientation] == 3:
-                output_image = output_image.rotate(180, expand=True)
-            elif input_image._getexif()[orientation] == 6:
-                output_image = output_image.rotate(270, expand=True)
-            elif input_image._getexif()[orientation] == 8:
-                output_image = output_image.rotate(90, expand=True)
-
-        output_image.save('output_image.png')
-
-        return send_file('output_image.png', mimetype='image/png')
+        return jsonify({"url": img_str})
     except Exception as e:
         print(e)
         return jsonify(error=str(e)), 500
+    
+#route to save garment to database
+@app.route('/api/save-item', methods=['POST'])
+def save_item():
+
+    try:
+        data = request.get_json()
+        # print(data['file'])
+        
+        garment = Garment(
+            name = data['itemName'],
+            brand = data['brand'],
+            color = data['color'],
+            size = data['size'],
+            price = data['price'],
+            garment_image = data['file']
+        )
+
+        db.session.add(garment)
+        db.session.commit()
+
+        return jsonify({"message": "Item saved successfully"})
+    except Exception as e:
+        print(e)
+        return jsonify(error=str(e)), 500
+
 
 
 if __name__  == '__main__':
