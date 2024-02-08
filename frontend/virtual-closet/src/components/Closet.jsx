@@ -1,120 +1,68 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import './Closet.css';
 
 function Closet() {
-    const [files, setFiles] = useState([]);
-    const [formData, setFormData] = useState({
-      itemName: '',
-      brand: '',
-      color: '',
-      size: '',
-      price: '',
-      file: null
-    });
+  const [garments, setGarments] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-    async function handleChange(e) {
-      const uploadedFiles = e.target.files;
-    
-      if (uploadedFiles.length > 0) {
-        const newFiles = Array.from(uploadedFiles).map(async (file) => {
-          const formData = new FormData();
-          formData.append('file', file);
-    
-          const response = await fetch('http://127.0.0.1:5555/api/remove-background', {
-            method: 'POST',
-            body: formData,
-          });
-    
-          // Get the response as JSON
-          const data = await response.json();
-    
-          // Get the Base64 string from the "url" key
-          const base64String = data.url;
-    
-          const url = 'data:image/png;base64,' + base64String;
-    
-          return url;
-        });
-        
-        const urls = await Promise.all(newFiles);
-        setFiles(prevFiles => [...prevFiles, ...urls]);
+  useEffect(() => {
+    fetch('http://localhost:5555/api/get-garments')
+      .then(response => response.json())
+      .then(data => setGarments(data))
+      .catch(error => console.error('Error:', error));
+  }, []);
 
-        if (urls.length > 0) {
-          setFormData(prevFormData => ({
-            ...prevFormData,
-            file: urls[0]
-          }));
-        }
-      }
-    }
-
-  function handleInputChange(e) {
-    setFormData(prevFormData => ({
-      ...prevFormData,
-      [e.target.name]: e.target.value
-    }));
-      console.log(formData)
+  // Wait for garments data to be fetched before rendering the component
+  if (garments.length === 0) {
+    return <div>Loading...</div>;
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-  
-    try {
-      const response = await fetch('http://127.0.0.1:5555/api/save-item', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-  
-      if (response.ok) {
-        const responseData = await response.json();
-        console.log(responseData.message); // Log the success message
-      } else {
-        console.log('Failed to save item');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  }
+  // Calculate the index of the first and last items on the current page
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 
-    return(
-    <div className="App">
-        <h2>Add Items:</h2>
-        {/* Hidden file input triggered by label click */}
-        <label htmlFor="fileInput" className="uploadArea">
-        +
-        </label>
-        <input
-          id="fileInput"
-          type="file"
-          onChange={handleChange}
-          multiple
-          style={{ display: 'none' }}
-        />
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="item-name">Item Name:</label><br />
-          <input type="text" id="item-name" name="itemName" onChange={handleInputChange} /><br />
-          <label htmlFor="brand">Brand:</label><br />
-          <input type="text" id="brand" name="brand" onChange={handleInputChange} /><br />
-          <label htmlFor="color">Color:</label><br />
-          <input type="text" id="color" name="color" onChange={handleInputChange} /><br />
-          <label htmlFor="size">Size:</label><br />
-          <input type="text" id="size" name="size" onChange={handleInputChange} /><br />
-          <label htmlFor="price">Price:</label><br />
-          <input type="text" id="price" name="price" onChange={handleInputChange} /><br />
-          <input type="submit" value="Submit" />
-        </form> 
-        <div className="closet-area">
-            {files.length > 0 &&
-            files.map((file, index) => (
-                <img key={index} src={file} alt={`Uploaded ${index + 1}`} />
-            ))}
+  // Get the items for the current page
+  const currentItems = garments.slice(indexOfFirstItem, indexOfLastItem);
 
+  // Function to handle clicking the 'Next' button
+  const handleNextClick = () => {
+    setCurrentPage(prevPageNumber => prevPageNumber + 1);
+  };
+
+  // Function to handle clicking the 'Previous' button
+  const handlePrevClick = () => {
+    setCurrentPage(prevPageNumber => prevPageNumber - 1);
+  };
+
+  // Get the current route
+  const location = useLocation();
+
+  return (
+    <div>
+      <p>Closet</p>
+      <div className='clothing-container'>
+        <div className='closet-items'>
+          {currentItems.map((garment, index) => (
+            <div key={index}>
+              <img className="garment" src={garment.garment_image} alt={garment.name}></img>
+            </div>
+          ))}
         </div>
+          <>
+            <button onClick={handlePrevClick} disabled={currentPage === 1}>
+              Previous
+            </button>
+            <button onClick={handleNextClick} disabled={currentPage === Math.ceil(garments.length / itemsPerPage)}>
+              Next
+            </button>
+            <Link to="/add-item">Add Item</Link>
+          </>
       </div>
-    )
+    </div>
+  );
 }
 
-export default Closet
+export default Closet;
+  

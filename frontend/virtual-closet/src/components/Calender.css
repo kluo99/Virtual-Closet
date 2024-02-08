@@ -7,15 +7,18 @@
 body {
     min-height: 100vh;
     display: flex;
+    margin: 0;
+    padding: 0;
+    /* Remove these lines */
     align-items: center;
     justify-content: center;
+   
 }
 
+
 .calender {
-    width: 100%;
-    height: auto;
-    display: flex;
-    flex-direction: column;
+    width: auto; /* Adjusts width based on content */
+    max-width: 600px; /* Maximum width */
     padding: 10px;
     background-color: #fff;
     border-radius: 10px;
@@ -63,7 +66,7 @@ body {
 .dates {
     display: grid; 
     grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
+    gap: 5%;
 }
 
 .date {
@@ -76,8 +79,8 @@ body {
     cursor: pointer;
     font-weight: 600;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 40px; /* Fixed width */
+    height: 40px; /* Fixed height */
     transition: 0.2s;
 }
 

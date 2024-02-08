@@ -103,6 +103,16 @@ def save_item():
         print(e)
         return jsonify(error=str(e)), 500
 
+#route to fetch all garments from database to display
+@app.route('/api/get-garments', methods=['GET'])
+def get_garments():
+    try:
+        garments = Garment.query.all()
+        garments_list = [garment.to_dict() for garment in garments]
+        return jsonify(garments_list)
+    except Exception as e:
+        return jsonify(error=str(e)), 500
+
 
 
 if __name__  == '__main__':

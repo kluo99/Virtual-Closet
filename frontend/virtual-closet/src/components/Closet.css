@@ -1,4 +1,55 @@
-img {
-    width: 500px;
-    height: 500px;
+.closet-items {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.clothing-container {
+    border: black 1px solid;
+    width: 75%;  /* Adjust as needed */
+    height: 700px;  /* Adjust as needed */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    padding: 20px;
+    margin: auto;
+}
+
+.garment {
+    width: calc(50% - 100px); /* Adjust as needed */
+    height: auto; 
+    margin: 10px;  
+}
+
+
+
+@media (max-width: 600px) {
+    .clothing-container {
+        width: 100%;
+        height: auto;
+    }
+
+    .garment {
+        width: 100%;
+    }
+
+    .garment img {
+        height: 150px; /* Adjust as needed */
+    }
+}
+
+/* For screens between 600px and 900px */
+@media (min-width: 600px) and (max-width: 900px) {
+    .clothing-container {
+        width: 100%;
+        height: auto;
+    }
+
+    .garment {
+        width: 50%;
+    }
+
+    .garment img {
+        height: 200px; /* Adjust as needed */
+    }
 }
