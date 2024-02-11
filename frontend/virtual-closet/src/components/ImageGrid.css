@@ -1,0 +1,17 @@
+.image-grid-container {
+    border: black 1px solid;
+    width: 100%;  /* Adjust as needed */
+    height: 700px;  /* Adjust as needed */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    padding: 20px;
+    margin: auto;
+}
+
+.add-image {
+    position: absolute;
+    top: 50%;
+    left: auto;
+    transform: 'translate(-50%, -50%)';
+}

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useDrop } from 'react-dnd';
 import DraggableResizableImage from './DraggableResizableImage';
+import "./ImageGrid.css";
+import { Link, useLocation } from 'react-router-dom';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -13,13 +15,11 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    // You can log the error or send it to an error reporting service
     console.error(error);
   }
 
   render() {
     if (this.state.hasError) {
-      // You can render a fallback UI when an error occurs
       return <div>Something went wrong.</div>;
     }
 
@@ -56,20 +56,25 @@ function ImageGrid() {
     drop: handleDrop,
   });
 
+  const location = useLocation();
+
   return (
-    <ErrorBoundary>
-      <div ref={drop} style={{ width: '100%', height: '100%', position: 'relative' }}>
-        {images.map((image) => (
-          <DraggableResizableImage
-            key={image.id}
-            id={image.id}
-            src={image.src}
-            alt={image.alt}
-            position={image.position}
-          />
-        ))}
-      </div>
-    </ErrorBoundary>
+    <div className='image-grid-container'>
+      <ErrorBoundary>
+        <div ref={drop} style={{ width: '100%', height: '100%', position: 'relative' }}>
+          {location.pathname === "/" && <Link to="/image-grid" className='add-image'>Add an outfit</Link>}
+          {images.map((image) => (
+            <DraggableResizableImage
+              key={image.id}
+              id={image.id}
+              src={image.src}
+              alt={image.alt}
+              position={image.position}
+            />
+          ))}
+        </div>
+      </ErrorBoundary>
+    </div>
   );
 }
 
