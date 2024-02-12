@@ -2,7 +2,7 @@ import React, { createContext, useState } from 'react';
 
 export const ImageContext = createContext();
 
-export function ImageProvider({ children }) {
+export const ImageProvider = ({ children }) => {
   const [selectedImages, setSelectedImages] = useState([]);
 
   return (
@@ -10,4 +10,4 @@ export function ImageProvider({ children }) {
       {children}
     </ImageContext.Provider>
   );
-}
+};

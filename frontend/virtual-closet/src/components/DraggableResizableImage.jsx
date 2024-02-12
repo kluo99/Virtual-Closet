@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Rnd } from 'react-rnd';
+import './DraggableResizableImage.css'; // Import the CSS file
 
-function DraggableResizableImage({ src, alt, initialPosition }) {
+function DraggableResizableImage({ src, alt, position }) {
   const [dimensions, setDimensions] = useState({ width: 200, height: 200 });
-  const [position, setPosition] = useState(initialPosition);
 
   const handleResize = (e, direction, ref, delta, position) => {
     setDimensions({
@@ -12,23 +12,20 @@ function DraggableResizableImage({ src, alt, initialPosition }) {
     });
   };
 
-  const handleDragStop = (e, d) => {
-    setPosition({ x: d.x, y: d.y });
-  };
-
   return (
     <Rnd
+      className="resizable-container"
       size={dimensions}
       position={position}
       onResizeStop={handleResize}
-      onDragStop={handleDragStop}
       bounds="parent"
       enableResizing={{
         top:true, right:true, bottom:true, left:true,
         topRight:true, bottomRight:true, bottomLeft:true, topLeft:true
       }}
     >
-      <img src={src} alt={alt} style={dimensions} />
+      <button className="close-button">X</button>
+      <img className="resizable-image" src={src} alt={alt} style={dimensions} />
     </Rnd>
   );
 }

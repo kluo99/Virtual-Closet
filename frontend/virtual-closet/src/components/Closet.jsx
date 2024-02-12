@@ -1,19 +1,32 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './Closet.css';
+import { useContext } from 'react';
+import { ImageContext } from './ImageProvider';
 
 function Closet() {
   const [garments, setGarments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const { selectedImages, setSelectedImages } = useContext(ImageContext);
+  const location = useLocation();
+
+  const handleImageClick = (image) => {
+    if (location.pathname === "/image-grid") {
+      setSelectedImages([...selectedImages, image]);
+      console.log(image);
+    }
+  };
 
   useEffect(() => {
     fetch('http://localhost:5555/api/get-garments')
       .then(response => response.json())
-      .then(data => setGarments(data))
+      .then(data => {
+        console.log(data); // Add this line
+        setGarments(data);
+      })
       .catch(error => console.error('Error:', error));
   }, []);
-
   // Wait for garments data to be fetched before rendering the component
   if (garments.length === 0) {
     return <div>Loading...</div>;
@@ -36,18 +49,14 @@ function Closet() {
     setCurrentPage(prevPageNumber => prevPageNumber - 1);
   };
 
-  // Get the current route
-  const location = useLocation();
-
   return (
-    <div>
+    <div className='clothing-container'>
       <p>Closet</p>
-      <div className='clothing-container'>
         <div className='closet-items'>
           {currentItems.map((garment, index) => (
-            <div key={index}>
-              <img className="garment" src={garment.garment_image} alt={garment.name}></img>
-            </div>
+            // <div key={index}>
+            <img className="garment" onClick={() => handleImageClick(garment)} src={garment.garment_image} alt={garment.name}></img>
+            // </div>
           ))}
         </div>
           <>
@@ -59,7 +68,7 @@ function Closet() {
             </button>
             <Link to="/add-item">Add Item</Link>
           </>
-      </div>
+
     </div>
   );
 }

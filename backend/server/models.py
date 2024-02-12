@@ -12,6 +12,13 @@ metadata = MetaData()
 # A Flask SQLAlchemy extension
 db = SQLAlchemy(metadata=metadata)
 
+garments_outfits = db.Table('garments_outfits',
+    db.Column('garment_id', db.Integer, db.ForeignKey('garment_table.id'), primary_key=True),
+    db.Column('outfit_id', db.Integer, db.ForeignKey('outfit_table.id'), primary_key=True),
+    db.Column('x_position', db.Integer),
+    db.Column('y_position', db.Integer)
+)
+
 class Garment(db.Model, SerializerMixin):
     __tablename__ = 'garment_table'
 
@@ -27,14 +34,25 @@ class Garment(db.Model, SerializerMixin):
     occasion = db.Column(db.String)
 
     category_id = db.Column(db.Integer, db.ForeignKey('category_table.id'))
-    category = db.Column(db.String)
+
 
     category = db.relationship("Category", back_populates="garment")
+    outfits = db.relationship('Outfit', secondary=garments_outfits, back_populates='garments', lazy='dynamic')
 
     serialize_rules = ["-category"]
 
     def __repr__(self):
         return f"<Book {self.id}: {self.name}, {self.brand}, {self.color}, {self.garment_image}, {self.size}, {self.price}, {self.season}, {self.occasion}, {self.category}, {self.category_id}>"
+
+class Outfit(db.Model, SerializerMixin):
+    __tablename__ = 'outfit_table'
+
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.Date, default=func.now())
+    garments = db.relationship('Garment', secondary=garments_outfits, back_populates='outfits', lazy='dynamic')
+
+    def __repr__(self):
+        return f"<Outfit {self.id}: {self.date}>"
 
 
 class Category(db.Model, SerializerMixin):
@@ -45,7 +63,7 @@ class Category(db.Model, SerializerMixin):
 
     garment = db.relationship("Garment", back_populates="category")
 
-    serialize_rules = ["-garment"]
+    serialize_rules = ["-garments"]
 
     def __repr__(self):
         return f"<Category {self.id}: {self.name}>"

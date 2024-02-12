@@ -9,7 +9,7 @@ import numpy as np
 import easygui as eg
 from werkzeug.utils import secure_filename
 # from dotenv import dotenv_values
-from models import db, Garment, Category
+from models import db, Garment, Category, Outfit, garments_outfits
 import base64
 import io
 # from werkzeug.security import generate_password_hash, check_password_hash

@@ -1,8 +1,8 @@
-* {
+/* * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-}
+} */
 
 body {
     min-height: 100vh;
@@ -18,11 +18,13 @@ body {
 
 .calender {
     width: auto; /* Adjusts width based on content */
-    max-width: 600px; /* Maximum width */
+    /* max-width: 600px; Maximum width */
     padding: 10px;
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    /* height: 30rem; Adjusts height based on content */
+    margin: auto;
 }
 
 .header{
@@ -66,7 +68,7 @@ body {
 .dates {
     display: grid; 
     grid-template-columns: repeat(7, 1fr);
-    gap: 5%;
+    /* gap: 5%; */
 }
 
 .date {

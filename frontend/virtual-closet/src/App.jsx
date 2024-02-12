@@ -33,9 +33,11 @@ function App() {
           <Route path="/add-item" element={<AddItem />} />
           <Route path="/image-grid" element={
             <DndProvider backend={HTML5Backend}>
+              <div>
                 <Closet />
                 <ImageGrid />
-              </DndProvider>} />
+              </div>
+            </DndProvider>} />
         </Routes>
       </ImageProvider>
     </Router>

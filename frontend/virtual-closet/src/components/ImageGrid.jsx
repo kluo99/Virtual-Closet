@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useDrop } from 'react-dnd';
 import DraggableResizableImage from './DraggableResizableImage';
 import "./ImageGrid.css";
 import { Link, useLocation } from 'react-router-dom';
+import { ImageContext } from './ImageProvider';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -28,28 +29,29 @@ class ErrorBoundary extends React.Component {
 }
 
 function ImageGrid() {
-  const [images, setImages] = useState([
-    { id: 1, src: './acne.JPG', alt: 'Image 1', position: { x: 0, y: 0 } },
-    { id: 2, src: 'image2.png', alt: 'Image 2', position: { x: 0, y: 0 } },
-    // Add more images as needed
-  ]);
+  const { selectedImages, setSelectedImages } = useContext(ImageContext);
 
   const handleDrop = (item, monitor) => {
-    const delta = monitor.getDifferenceFromInitialOffset();
-    const { x, y } = item.position;
-    const newPosition = {
-      x: x + delta.x,
-      y: y + delta.y,
-    };
-    const updatedImages = images.map((image) => {
-      if (image.id === item.id) {
-        return { ...image, position: newPosition };
-      }
-      return image;
-    });
-    setImages(updatedImages);
-    // Save the updatedImages to the backend here
+  // Check if the drop target is valid
+  if (!monitor.didDrop()) {
+    return;
+  }
+
+  const delta = monitor.getDifferenceFromInitialOffset();
+  const { x, y } = item.position;
+  const newPosition = {
+    x: x + delta.x,
+    y: y + delta.y,
   };
+
+  setSelectedImages(prevImages => prevImages.map((image) => {
+    if (image.id === item.id) {
+      return { ...image, position: newPosition };
+    }
+    return image;
+  }));
+  // Save the updatedImages to the backend here
+};
 
   const [, drop] = useDrop({
     accept: 'image',
@@ -59,22 +61,23 @@ function ImageGrid() {
   const location = useLocation();
 
   return (
-    <div className='image-grid-container'>
+    // <div className='image-grid-container'>
       <ErrorBoundary>
-        <div ref={drop} style={{ width: '100%', height: '100%', position: 'relative' }}>
+        <div ref={drop} className='image-grid-container'>
           {location.pathname === "/" && <Link to="/image-grid" className='add-image'>Add an outfit</Link>}
-          {images.map((image) => (
+          {selectedImages.map((image) => (
             <DraggableResizableImage
               key={image.id}
               id={image.id}
-              src={image.src}
+              src={image.garment_image}
               alt={image.alt}
               position={image.position}
             />
           ))}
         </div>
+        {location.pathname === "/image-grid" && <button>Save Outfit</button>}
       </ErrorBoundary>
-    </div>
+    // </div>
   );
 }
 

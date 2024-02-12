@@ -6,22 +6,21 @@
 
 .clothing-container {
     border: black 1px solid;
-    width: 75%;  /* Adjust as needed */
-    height: 700px;  /* Adjust as needed */
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
     padding: 20px;
     margin: auto;
 }
 
 .garment {
-    width: calc(50% - 100px); /* Adjust as needed */
-    height: auto; 
+    width: 100px; /* Set a default width */
+    height: 100px;/* Adjust as needed */
     margin: 10px;  
 }
 
-
+.garment img {
+    width: 100px; /* Set a default width */
+    height: 100px; /* Set a specific height */
+    object-fit: cover; /* This will ensure that your images cover the area without distorting their aspect ratios */
+}
 
 @media (max-width: 600px) {
     .clothing-container {
