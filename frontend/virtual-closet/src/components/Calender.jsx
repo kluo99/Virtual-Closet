@@ -1,13 +1,24 @@
 import { useState, useEffect } from 'react';
 import './Calender.css';
+import DatePicker from 'react-datepicker';
+import Modal from 'react-modal';
+Modal.setAppElement('#root');
 
-function Calender() {
+function Calender( {selectedDate, setSelectedDate} ) {
   // let currentDate = new Date();
   const [focusedDate, setFocusedDate] = useState(new Date());
   const [currentDate, setCurrentDate] = useState(new Date());
   const [monthYear, setMonthYear] = useState('')
   const [dates, setDates] = useState([])
-  const [selectedDate, setSelectedDate] = useState(null);
+  // const [selectedDate, setSelectedDate] = useState(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [modalDates, setModalDates] = useState([]);
+
+  // const handleDatePickerChange = (date) => {
+  //   setCurrentDate(date);
+  //   setFocusedDate(date);
+  //   setShowDatePicker(false);
+  // }
 
   const convertDateForDB = (date) => {
     const year = date.getFullYear();
@@ -26,61 +37,76 @@ function Calender() {
   const handleDateClick = (date) => {
     setSelectedDate(date);
     setFocusedDate(date); // Set the clicked date as the focused date
-  
-    // Check if the clicked date is in the previous month
-    if (date.getMonth() < currentDate.getMonth() || date.getFullYear() < currentDate.getFullYear()) {
-      setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)));
-    }
-    // Check if the clicked date is in the next month
-    else if (date.getMonth() > currentDate.getMonth() || date.getFullYear() > currentDate.getFullYear()) {
-      setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)));
-    }
+    setCurrentDate(new Date(date.getFullYear(), date.getMonth(), date.getDate())); // Set the clicked date as the current date
   
     const dbDate = convertDateForDB(date);
     console.log(dbDate);
+    console.log('Clicked date:', date);
+    console.log('Selected date:', selectedDate);
+  
+    setShowDatePicker(false); // Close the date picker modal
   }
+  
+  //   const dbDate = convertDateForDB(date);
+  //   console.log(dbDate);
+  //   console.log('Clicked date:', date);
+  //   console.log('Selected date:', selectedDate);
+  // }
 
   const updateCalendar = () => {
     const currentYear = currentDate.getFullYear();
     const currentMonth = currentDate.getMonth();
+    const currentDay = currentDate.getDate();
   
-    const firstDay = new Date(currentYear, currentMonth, 1); // changed from 0 to 1
-    const lastDay = new Date(currentYear, currentMonth + 1, 0); // changed from 0 to 1
-    const totalDays = lastDay.getDate();
-    const firstDayIndex = firstDay.getDay();
-    const lastDayIndex = lastDay.getDay();
+    const firstDay = new Date(currentYear, currentMonth, currentDay - currentDate.getDay());
+    const lastDay = new Date(currentYear, currentMonth, currentDay + (6 - currentDate.getDay()));
   
     const monthYearString = currentDate.toLocaleString('default', {month: 'long', year: 'numeric'}); 
     setMonthYear(monthYearString);
   
     let datesArray = [];
   
-    for(let i = firstDayIndex; i > 0; i--) {
-      const prevDate = new Date(currentYear, currentMonth, 1 - i);
-      datesArray.push(prevDate.getDate());
-    }
-  
-    for(let i = 1; i <= totalDays; i++) {
-      const date = new Date(currentYear, currentMonth, i);
-      datesArray.push({ day: i, activeClass: '' });
-    }
-    
-    
-    for(let i = 1; i<= 7 - lastDayIndex; i++) {
-      const nextDate = new Date(currentYear, currentMonth + 1, i);
-      datesArray.push({ day: nextDate.getDate(), activeClass: 'inactive' });
+    for(let i = 0; i < 7; i++) {
+      const date = new Date(firstDay.getFullYear(), firstDay.getMonth(), firstDay.getDate() + i);
+      datesArray.push({ day: date.getDate(), activeClass: '' });
     }
   
     setDates(datesArray);
   }
 
-
-  const handlePrevBtn = () => {
-    setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)));
+  const updateModalCalendar = () => {
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+  
+    const firstDay = new Date(currentYear, currentMonth, 1);
+    const lastDay = new Date(currentYear, currentMonth + 1, 0);
+    const totalDays = lastDay.getDate();
+  
+    let datesArray = [];
+  
+    for(let i = 1; i <= totalDays; i++) {
+      const date = new Date(currentYear, currentMonth, i);
+      const isActive = focusedDate && focusedDate.toDateString() === date.toDateString();
+      const activeClass = isActive ? 'active' : '';
+      datesArray.push({ day: i, activeClass });
+    }
+  
+    setModalDates(datesArray);
   }
 
+  useEffect(() => {
+    if (showDatePicker) {
+      updateModalCalendar();
+    }
+  }, [showDatePicker]);
+
+
+  const handlePrevBtn = () => {
+    setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() - 7)));
+  }
+  
   const handleNextBtn = () => {
-    setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)));
+    setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() + 7)));
   }
 
   useEffect(() => {
@@ -89,15 +115,61 @@ function Calender() {
 
   return (
     <div className="calender">
-      <p>Calender</p>
       <div className="header">
         <button id="prevBtn" onClick={handlePrevBtn}>
             <i className="fa-solid fa-chevron-left">&lt;</i>
         </button>
-        <div className="monthYear" id="monthYear">{monthYear}</div>
+        <div className="monthYear" id="monthYear">
+          {currentDate.toDateString()}
+          <button onClick={() => setShowDatePicker(true)}>
+            <i className="fa-solid fa-calendar"></i>
+          </button>
+        </div>
         <button id="nextBtn" onClick={handleNextBtn}>
-            <i className="fa-solid fa-chevron-right">&gt;</i>
+          <i className="fa-solid fa-chevron-right">&gt;</i>
         </button>
+        <Modal 
+          isOpen={showDatePicker}
+          onRequestClose={() => setShowDatePicker(false)}
+          contentLabel="Date Picker"
+          className="datePickerModal"
+        >
+          <div className="calender">
+            <div className="header">
+              <button id="prevBtn" onClick={handlePrevBtn}>
+                  <i className="fa-solid fa-chevron-left">&lt;</i>
+              </button>
+              <div className="monthYear" id="monthYear">{monthYear}</div>
+              <button id="nextBtn" onClick={handleNextBtn}>
+                  <i className="fa-solid fa-chevron-right">&gt;</i>
+              </button>
+            </div>
+            <div className="days">
+              <div className="day">Sun</div>
+              <div className="day">Mon</div>
+              <div className="day">Tues</div>
+              <div className="day">Weds</div>
+              <div className="day">Thurs</div>
+              <div className="day">Fri</div>
+              <div className="day">Sat</div>
+            </div>
+            <div className="dates" id="dates">
+              {modalDates.map(({ day, activeClass }, index) => {
+                const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                const isActive = focusedDate && focusedDate.toDateString() === date.toDateString();
+                return (
+                  <div 
+                    key={index} 
+                    className={`date ${isActive ? 'active' : activeClass}`} 
+                    onClick={() => handleDateClick(date)}
+                  >
+                    {day}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </Modal>
       </div>
       <div className="days">
         <div className="day">Sun</div>
@@ -110,38 +182,18 @@ function Calender() {
       </div>
       <div className="dates" id="dates">
       {dates.map(({ day, activeClass }, index) => {
-  let month = currentDate.getMonth();
-  let year = currentDate.getFullYear();
-
-  // If the date is from the previous month
-  if (activeClass === 'inactive' && day > 7) {
-    month--;
-    if (month < 0) {
-      month = 11;
-      year--;
-    }
-  }
-  // If the date is from the next month
-  else if (activeClass === 'inactive' && day <= 7) {
-    month++;
-    if (month > 11) {
-      month = 0;
-      year++;
-    }
-  }
-
-  const date = new Date(year, month, day);
-  const isActive = focusedDate && focusedDate.toDateString() === date.toDateString();
-  return (
-    <div 
-      key={index} 
-      className={`date ${isActive ? 'active' : activeClass}`} 
-      onClick={() => handleDateClick(date)}
-    >
-      {day}
-    </div>
-  );
-})}
+        const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - currentDate.getDay() + index);
+        const isActive = focusedDate && focusedDate.toDateString() === date.toDateString();
+      return (
+        <div 
+          key={index} 
+          className={`date ${isActive ? 'active' : activeClass}`} 
+          onClick={() => handleDateClick(date)}
+        >
+          {day}
+        </div>
+      );
+    })}
     </div>
   </div>
 );

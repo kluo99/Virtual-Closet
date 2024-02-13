@@ -39,7 +39,7 @@ class Garment(db.Model, SerializerMixin):
     category = db.relationship("Category", back_populates="garment")
     outfits = db.relationship('Outfit', secondary=garments_outfits, back_populates='garments', lazy='dynamic')
 
-    serialize_rules = ["-category"]
+    serialize_rules = ["-category", "-outfits"]
 
     def __repr__(self):
         return f"<Book {self.id}: {self.name}, {self.brand}, {self.color}, {self.garment_image}, {self.size}, {self.price}, {self.season}, {self.occasion}, {self.category}, {self.category_id}>"
@@ -50,6 +50,8 @@ class Outfit(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, default=func.now())
     garments = db.relationship('Garment', secondary=garments_outfits, back_populates='outfits', lazy='dynamic')
+
+    serialize_rules = ["-garments"]
 
     def __repr__(self):
         return f"<Outfit {self.id}: {self.date}>"
@@ -67,6 +69,8 @@ class Category(db.Model, SerializerMixin):
 
     def __repr__(self):
         return f"<Category {self.id}: {self.name}>"
+    
+
 
 # class Weather(db.Model, SerializerMixin):
 #     __tablename__ = 'weather_table'

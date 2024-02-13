@@ -7,8 +7,12 @@ import ImageGrid from './components/ImageGrid.jsx';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ImageProvider } from './components/ImageProvider';
+import { useState } from 'react';
 
 function App() {
+
+  const [selectedDate, setSelectedDate] = useState(null);
+
   return (
     <Router>
       <div>
@@ -19,9 +23,9 @@ function App() {
           <Route path="/" element={
             <div className='main-container'>
               <Closet />
-              <Calender />
+              <Calender selectedDate={selectedDate} setSelectedDate={setSelectedDate}/>
               <DndProvider backend={HTML5Backend}>
-                <ImageGrid />
+                <ImageGrid selectedDate={selectedDate}/>
               </DndProvider>
             </div>
           } />
@@ -35,7 +39,7 @@ function App() {
             <DndProvider backend={HTML5Backend}>
               <div>
                 <Closet />
-                <ImageGrid />
+                <ImageGrid selectedDate={selectedDate}/>
               </div>
             </DndProvider>} />
         </Routes>

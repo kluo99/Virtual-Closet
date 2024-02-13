@@ -12,6 +12,7 @@ from werkzeug.utils import secure_filename
 from models import db, Garment, Category, Outfit, garments_outfits
 import base64
 import io
+from datetime import datetime
 # from werkzeug.security import generate_password_hash, check_password_hash
 # from flask_bcrypt import Bcrypt
 # from sqlalchemy.orm.exc import NoResultFound
@@ -113,7 +114,72 @@ def get_garments():
     except Exception as e:
         return jsonify(error=str(e)), 500
 
+@app.route('/save_date', methods=['POST'])
+def save_date():
+    data = request.get_json()
+    date = data.get('date')
 
+    # Convert the date string to a datetime object
+    from datetime import datetime
+    date = datetime.strptime(date, '%Y-%m-%d')
+
+    new_outfit = Outfit(date=date)
+    db.session.add(new_outfit)
+    db.session.commit()
+
+    return {'message': 'Date saved successfully'}, 200
+
+@app.route('/add_garment', methods=['POST'])
+def add_garment():
+    data = request.get_json()
+    name = data.get('name')
+    brand = data.get('brand')
+    color = data.get('color')
+    garment_image = data.get('garment_image')
+    size = data.get('size')
+    price = data.get('price')
+
+    new_garment = Garment(name=name, brand=brand, color=color, garment_image=garment_image, size=size, price=price)
+    db.session.add(new_garment)
+    db.session.commit()
+
+    return {'message': 'Garment added successfully'}, 200
+
+@app.route('/api/save-outfit', methods=['POST'])
+def save_outfit():
+    data = request.get_json()
+    if not data:
+        return {"message": "No input data provided"}, 400
+    date_str = data.get('date')
+    # Convert the date string to a datetime.date object
+    date = datetime.strptime(date_str, '%Y-%m-%d').date()
+    garment_ids = data.get('garments')
+    if not garment_ids:
+        return {"message": "No garments provided"}, 400
+    garments = Garment.query.filter(Garment.id.in_(garment_ids)).all()
+    if not garments:
+        return {"message": "Garments not found"}, 404
+    outfit = Outfit(date=date, garments=garments)
+    db.session.add(outfit)
+    db.session.commit()
+    return {"message": "Outfit created", "outfit_id": outfit.id}, 201
+
+@app.route('/api/get-outfit', methods=['GET'])
+def get_outfit():
+    date_str = request.args.get('date')
+    if not date_str:
+        return {"message": "No date provided"}, 400
+    # Convert the date string to a datetime.date object
+    date = datetime.strptime(date_str, '%Y-%m-%d').date()
+    # Query the Outfit table for an outfit with the specified date
+    outfit = Outfit.query.filter_by(date=date).first()
+    if not outfit:
+        return {"message": "Outfit not found"}, 404
+    # Access the associated garments
+    garments = outfit.garments
+    # Now `garments` is a list of Garment objects associated with the outfit
+    garments_list = [garment.to_dict() for garment in garments]
+    return jsonify(garments_list)
 
 if __name__  == '__main__':
     app.run(port=5555, debug=True)
