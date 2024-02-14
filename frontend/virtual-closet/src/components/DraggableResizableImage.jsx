@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Rnd } from 'react-rnd';
 import './DraggableResizableImage.css'; 
 
-function DraggableResizableImage({ src, alt, initialPosition, initialSize, onResize, onDragStop }) {
+function DraggableResizableImage({ src, alt, initialPosition, initialSize, onResize, onDragStop, onDelete }) {
   const [dimensions, setDimensions] = useState(initialSize || { width: 200, height: 200 });
   const [position, setPosition] = useState(initialPosition);
+
+  
 
   const handleResize = (e, direction, ref, delta, position) => {
     const newDimensions = {
@@ -41,7 +43,7 @@ function DraggableResizableImage({ src, alt, initialPosition, initialSize, onRes
         topRight:true, bottomRight:true, bottomLeft:true, topLeft:true
       }}
     >
-      <button className="close-button">X</button>
+      <button className="close-button" onClick={onDelete}>X</button>
       <img className="resizable-image" src={src} alt={alt} />
     </Rnd>
   );

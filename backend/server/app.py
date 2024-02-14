@@ -193,6 +193,7 @@ def save_outfit():
         return {"message": "Outfit saved", "outfit_id": outfit.id}, 201
 
     except Exception as e:
+        print(e)
         return jsonify(error=str(e)), 500
 
 
@@ -263,7 +264,10 @@ def update_outfit(outfit_id):
         return {"message": "Outfit updated", "outfit_id": outfit.id}, 200
 
     except Exception as e:
+        print(e)
         return jsonify(error=str(e)), 500
+
+
 
 if __name__  == '__main__':
     app.run(port=5555, debug=True)

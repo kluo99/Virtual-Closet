@@ -35,6 +35,10 @@ function ImageGrid( {selectedDate} ) {
   const { selectedImages, setSelectedImages } = useContext(ImageContext);
   console.log('Selected date in ImageGrid:', selectedDate);
   const selectedImagesRef = useRef(selectedImages);
+  const [outfitExists, setOutfitExists] = useState(false);
+  const deleteImage = (id) => {
+    setSelectedImages(prevImages => prevImages.filter((image) => image.id !== id));
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -258,6 +262,7 @@ const handleResize = (id, newSize) => {
         initialSize={image.size}
         onResize={(newDimensions) => handleResize(image.id, newDimensions)}
         onDragStop={(newPosition) => handleDragStop(image.id, newPosition)}
+        onDelete={() => deleteImage(image.id)}
       />
     );
   } else {
