@@ -145,7 +145,7 @@ def add_garment():
 
     return {'message': 'Garment added successfully'}, 200
 
-@app.route('/api/save-outfit', methods=['POST'])
+@app.route('/api/save-outfit', methods=['POST', 'PATCH'])
 def save_outfit():
     try:
         data = request.get_json()
@@ -155,8 +155,16 @@ def save_outfit():
         # Convert date from string to datetime.date object
         date = datetime.strptime(date, '%Y-%m-%d').date()
 
-        outfit = Outfit(date=date)
-        db.session.add(outfit)
+        # Check if an outfit exists for the selected date
+        outfit = Outfit.query.filter_by(date=date).first()
+
+        if outfit is None:
+            # If no outfit exists, create a new one
+            outfit = Outfit(date=date)
+            db.session.add(outfit)
+        else:
+            # If an outfit exists, clear the existing garments
+            outfit.garments = []
 
         for garment_data in garments_data:
             garment = Garment.query.get(garment_data['id'])
@@ -182,10 +190,11 @@ def save_outfit():
 
         db.session.commit()
 
-        return {"message": "Outfit created", "outfit_id": outfit.id}, 201
+        return {"message": "Outfit saved", "outfit_id": outfit.id}, 201
 
     except Exception as e:
         return jsonify(error=str(e)), 500
+
 
 @app.route('/api/get-outfit', methods=['GET'])
 def get_outfit():
@@ -208,9 +217,53 @@ def get_outfit():
             'garment_image': garment.garment_image,  # replace with the actual property name
             'name': garment.name,  # replace with the actual property name
             'x_position': garment_outfit.x_position,
-            'y_position': garment_outfit.y_position
+            'y_position': garment_outfit.y_position,
+            'width': garment_outfit.width,
+            'height': garment_outfit.height
         })
     return jsonify(garments_list)
+
+@app.route('/api/update-outfit/<int:outfit_id>', methods=['PATCH'])
+def update_outfit(outfit_id):
+    try:
+        data = request.get_json()
+        garments_data = data.get('garments', [])
+
+        outfit = Outfit.query.get(outfit_id)
+        if not outfit:
+            return {"message": f"Outfit with id {outfit_id} not found"}, 404
+
+        # Clear the existing garments from the outfit
+        outfit.garments = []
+
+        for garment_data in garments_data:
+            garment = Garment.query.get(garment_data['id'])
+            if not garment:
+                return {"message": f"Garment with id {garment_data['id']} not found"}, 404
+
+            # Add garment to outfit with positions
+            outfit.garments.append(garment)
+            db.session.flush()  # to ensure outfit.id is available
+
+            # Update the x_position, y_position, width and height in the association table
+            db.session.execute(
+                garments_outfits.update().\
+                where(garments_outfits.c.outfit_id==outfit.id).\
+                where(garments_outfits.c.garment_id==garment.id).\
+                values(
+                    x_position=garment_data.get('x_position', 0), 
+                    y_position=garment_data.get('y_position', 0),
+                    width=garment_data.get('width', 0),
+                    height=garment_data.get('height', 0)
+                )
+            )
+
+        db.session.commit()
+
+        return {"message": "Outfit updated", "outfit_id": outfit.id}, 200
+
+    except Exception as e:
+        return jsonify(error=str(e)), 500
 
 if __name__  == '__main__':
     app.run(port=5555, debug=True)

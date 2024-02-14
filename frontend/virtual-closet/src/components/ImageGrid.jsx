@@ -157,27 +157,43 @@ function ImageGrid( {selectedDate} ) {
     }));
   
     console.log(JSON.stringify({ garments, date: dbDate }));
-    fetch('http://localhost:5555/api/save-outfit', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ garments, date: dbDate }),
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-  })
-  .then(data => {
-    console.log('Success:', data);
-    navigate("/");
-  })
-  .catch((error) => {
-    console.error('Error:', error);
-  });
-};
+  
+    // Check if the outfit already exists
+    fetch(`http://localhost:5555/api/get-outfit?date=${dbDate}`)
+      .then(response => response.json())
+      .then(data => {
+        let method = 'POST'; // Default to creating a new outfit
+        if (Array.isArray(data) && data.length > 0) {
+          method = 'PATCH'; // If an outfit already exists, update it
+        }
+  
+        // Send the request to save the outfit
+        fetch('http://localhost:5555/api/save-outfit', {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ garments, date: dbDate }),
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Success:', data);
+          navigate("/");
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  };
+
 const handleDragStop = (id, newPosition) => {
   setSelectedImages(prevImages => prevImages.map((image) => {
     if (image.id === id) {
@@ -239,6 +255,7 @@ const handleResize = (id, newSize) => {
         src={image.garment_image}
         alt={image.alt}
         initialPosition={image.position}
+        initialSize={image.size}
         onResize={(newDimensions) => handleResize(image.id, newDimensions)}
         onDragStop={(newPosition) => handleDragStop(image.id, newPosition)}
       />
