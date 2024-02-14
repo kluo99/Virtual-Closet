@@ -1,23 +1,40 @@
 import React, { useState } from 'react';
 import { Rnd } from 'react-rnd';
-import './DraggableResizableImage.css'; // Import the CSS file
+import './DraggableResizableImage.css'; 
 
-function DraggableResizableImage({ src, alt, position }) {
+function DraggableResizableImage({ src, alt, initialPosition, onResize, onDragStop }) {
   const [dimensions, setDimensions] = useState({ width: 200, height: 200 });
+  const [position, setPosition] = useState(initialPosition);
 
   const handleResize = (e, direction, ref, delta, position) => {
-    setDimensions({
+    const newDimensions = {
       width: ref.offsetWidth,
       height: ref.offsetHeight,
-    });
+    };
+    setDimensions(newDimensions);
+    console.log(`New size:`, newDimensions);
+
+    // Call the onResize callback with the new dimensions
+    onResize(newDimensions);
   };
+
+  const handleDragStop = (e, d) => {
+    const newPosition = { x: d.x, y: d.y };
+    setPosition(newPosition);
+    console.log(`New position:`, newPosition);
+
+    // Call the onDragStop callback with the new position
+    onDragStop(newPosition);
+  };
+
 
   return (
     <Rnd
-      className="resizable-container"
       size={dimensions}
+      className="resizable-container"
       position={position}
       onResizeStop={handleResize}
+      onDragStop={handleDragStop}
       bounds="parent"
       enableResizing={{
         top:true, right:true, bottom:true, left:true,

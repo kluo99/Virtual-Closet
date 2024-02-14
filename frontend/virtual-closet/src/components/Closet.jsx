@@ -13,7 +13,7 @@ function Closet() {
 
   const handleImageClick = (image) => {
     if (location.pathname === "/image-grid") {
-      setSelectedImages([...selectedImages, image]);
+      setSelectedImages([...selectedImages, { ...image, position: { x: 0, y: 0 } }]);
       console.log(image);
     }
   };
@@ -22,7 +22,6 @@ function Closet() {
     fetch('http://localhost:5555/api/get-garments')
       .then(response => response.json())
       .then(data => {
-        console.log(data); // Add this line
         setGarments(data);
       })
       .catch(error => console.error('Error:', error));

@@ -1,9 +1,10 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useDrop } from 'react-dnd';
 import DraggableResizableImage from './DraggableResizableImage';
 import "./ImageGrid.css";
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ImageContext } from './ImageProvider';
+import StaticImage from './StaticImage';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -29,9 +30,62 @@ class ErrorBoundary extends React.Component {
 }
 
 
+
 function ImageGrid( {selectedDate} ) {
   const { selectedImages, setSelectedImages } = useContext(ImageContext);
   console.log('Selected date in ImageGrid:', selectedDate);
+  const selectedImagesRef = useRef(selectedImages);
+
+  useEffect(() => {
+    const handleResize = () => {
+      // Adjust the positions of the outfits based on the new size of the image grid
+      const imageGrid = document.querySelector('.image-grid-container');
+      const newWidth = imageGrid.offsetWidth;
+      const newHeight = imageGrid.offsetHeight;
+  
+      setSelectedImages(prevImages => prevImages.map((image) => {
+        const newPosition = {
+          x: (image.position.x / oldWidth) * newWidth,
+          y: (image.position.y / oldHeight) * newHeight,
+        };
+        return { ...image, position: newPosition };
+      }));
+  
+      oldWidth = newWidth;
+      oldHeight = newHeight;
+    };
+  
+    let oldWidth = window.innerWidth;
+    let oldHeight = window.innerHeight;
+  
+    window.addEventListener('resize', handleResize);
+  
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  // useEffect(() => {
+  //   console.log(selectedImages.map(image => image.position));
+  // }, [selectedImages]);
+
+  useEffect(() => {
+    const preventContextMenu = (event) => {
+      event.preventDefault();
+    };
+  
+    document.addEventListener('contextmenu', preventContextMenu);
+  
+    return () => {
+      document.removeEventListener('contextmenu', preventContextMenu);
+    };
+  }, []);
+
+  useEffect(() => {
+    selectedImagesRef.current = selectedImages; // Update the reference whenever selectedImages changes
+  }, [selectedImages]);
+
+  console.log(selectedImages.map(image => image.position));
 
   const convertDateForDB = (date) => {
     const year = date.getFullYear();
@@ -56,28 +110,34 @@ function ImageGrid( {selectedDate} ) {
       .then(response => response.json())
       .then(data => {
         if (!Array.isArray(data) || data.length === 0) {
-          // If no outfit data is returned, clear the selected images
           setSelectedImages([]);
         } else {
-          // Convert the garments to the format expected by setSelectedImages
           const images = data.map(garment => ({
             id: garment.id,
-            garment_image: garment.garment_image, // replace with the actual image url property
-            alt: garment.name, // replace with the actual alt text property
-            position: { x: 0, y: 0 } // replace with actual position if available
+            garment_image: garment.garment_image,
+            alt: garment.name,
+            position: { 
+              x: garment.x_position !== undefined ? garment.x_position : 0, 
+              y: garment.y_position !== undefined ? garment.y_position : 0 
+            },
+            size: {
+              width: garment.width !== undefined ? garment.width : 200,
+              height: garment.height !== undefined ? garment.height : 200
+            }
           }));
           setSelectedImages(images);
         }
       })
       .catch((error) => {
         console.error('Error:', error);
-        // Clear the selected images in case of an error
         setSelectedImages([]);
       });
   }, [selectedDate]);
 
+  const navigate = useNavigate();
+
   const saveOutfit = () => {
-    console.log('selectedDate in saveOutfit:', selectedDate);
+    console.log("SAVED")
   
     if (!selectedDate) {
       console.log('No date selected');
@@ -86,46 +146,79 @@ function ImageGrid( {selectedDate} ) {
     console.log('Type of selectedDate:', typeof selectedDate);
     const dbDate = convertDateForDB(selectedDate);
     console.log('Converted date:', dbDate);
-    const garmentIds = selectedImages.map(image => image.id);
-
-    fetch('http://localhost:5555/api/save-outfit', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ garments: garmentIds, date: dbDate }),
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log('Success:', data);
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
-  };
+    const garmentIds = selectedImagesRef.current.map(image => image.id); // Use the reference here
   
-
-  const handleDrop = (item, monitor) => {
-  // Check if the drop target is valid
-  if (!monitor.didDrop()) {
-    return;
-  }
-
-  const delta = monitor.getDifferenceFromInitialOffset();
-  const { x, y } = item.position;
-  const newPosition = {
-    x: x + delta.x,
-    y: y + delta.y,
-  };
-
+    const garments = selectedImagesRef.current.map(image => ({ // And here
+      id: image.id,
+      x_position: image.position.x,
+      y_position: image.position.y,
+      width: image.size.width,
+      height: image.size.height
+    }));
+  
+    console.log(JSON.stringify({ garments, date: dbDate }));
+    fetch('http://localhost:5555/api/save-outfit', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ garments, date: dbDate }),
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('Success:', data);
+    navigate("/");
+  })
+  .catch((error) => {
+    console.error('Error:', error);
+  });
+};
+const handleDragStop = (id, newPosition) => {
   setSelectedImages(prevImages => prevImages.map((image) => {
-    if (image.id === item.id) {
-      return { ...image, position: newPosition };
+    if (image.id === id) {
+      return { ...image, position: { x: newPosition.x, y: newPosition.y } };
     }
     return image;
   }));
-  // Save the updatedImages to the backend here
 };
+
+const handleResize = (id, newSize) => {
+  setSelectedImages(prevImages => prevImages.map((image) => {
+    if (image.id === id) {
+      return { ...image, size: { width: newSize.width, height: newSize.height } };
+    }
+    return image;
+  }));
+};
+
+  const handleDrop = (item, monitor) => {
+    // Check if the drop target is valid
+    if (!monitor.didDrop()) {
+      return;
+    }
+  
+    const delta = monitor.getDifferenceFromInitialOffset();
+    const { x, y } = item.position;
+    const newPosition = {
+      x: x + delta.x,
+      y: y + delta.y,
+    };
+  
+    setSelectedImages(prevImages => prevImages.map((image) => {
+      if (image.id === item.id) {
+        console.log('New position:', newPosition);
+        return { ...image, position: newPosition };
+      }
+      return image;
+    }));
+    // Save the updatedImages to the backend here
+    console.log(selectedImages.map(image => image.position));
+  };
 
   const [, drop] = useDrop({
     accept: 'image',
@@ -139,15 +232,29 @@ function ImageGrid( {selectedDate} ) {
     <ErrorBoundary>
       <div ref={drop} className='image-grid-container'>
         {location.pathname === "/" && selectedImages.length === 0 && <Link to="/image-grid" className='add-image'>Add an outfit</Link>}
-        {selectedImages.map((image) => (
-          <DraggableResizableImage
-            key={image.id}
-            id={image.id}
-            src={image.garment_image}
-            alt={image.alt}
-            position={image.position}
-          />
-        ))}
+        {selectedImages.map((image) => {
+  if (location.pathname === "/image-grid") {
+    return (
+      <DraggableResizableImage
+        src={image.garment_image}
+        alt={image.alt}
+        initialPosition={image.position}
+        onResize={(newDimensions) => handleResize(image.id, newDimensions)}
+        onDragStop={(newPosition) => handleDragStop(image.id, newPosition)}
+      />
+    );
+  } else {
+    return (
+      <StaticImage
+        key={image.id}
+        src={image.garment_image}
+        alt={image.alt}
+        position={image.position}
+        size={image.size}
+      />
+    );
+  }
+})}
       </div>
       {location.pathname === "/image-grid" && <button onClick={saveOutfit}>Save Outfit</button>}
     </ErrorBoundary>

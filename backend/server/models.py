@@ -16,7 +16,9 @@ garments_outfits = db.Table('garments_outfits',
     db.Column('garment_id', db.Integer, db.ForeignKey('garment_table.id'), primary_key=True),
     db.Column('outfit_id', db.Integer, db.ForeignKey('outfit_table.id'), primary_key=True),
     db.Column('x_position', db.Integer),
-    db.Column('y_position', db.Integer)
+    db.Column('y_position', db.Integer),
+    db.Column('width', db.Integer),
+    db.Column('height', db.Integer)
 )
 
 class Garment(db.Model, SerializerMixin):

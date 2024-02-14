@@ -11,7 +11,7 @@ import { useState } from 'react';
 
 function App() {
 
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   return (
     <Router>
@@ -36,12 +36,13 @@ function App() {
           } />
           <Route path="/add-item" element={<AddItem />} />
           <Route path="/image-grid" element={
-            <DndProvider backend={HTML5Backend}>
-              <div>
-                <Closet />
+            <div>
+              <Closet />
+              <DndProvider backend={HTML5Backend}>
                 <ImageGrid selectedDate={selectedDate}/>
-              </div>
-            </DndProvider>} />
+              </DndProvider>
+            </div>
+          } />
         </Routes>
       </ImageProvider>
     </Router>

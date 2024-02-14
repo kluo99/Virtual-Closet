@@ -147,22 +147,45 @@ def add_garment():
 
 @app.route('/api/save-outfit', methods=['POST'])
 def save_outfit():
-    data = request.get_json()
-    if not data:
-        return {"message": "No input data provided"}, 400
-    date_str = data.get('date')
-    # Convert the date string to a datetime.date object
-    date = datetime.strptime(date_str, '%Y-%m-%d').date()
-    garment_ids = data.get('garments')
-    if not garment_ids:
-        return {"message": "No garments provided"}, 400
-    garments = Garment.query.filter(Garment.id.in_(garment_ids)).all()
-    if not garments:
-        return {"message": "Garments not found"}, 404
-    outfit = Outfit(date=date, garments=garments)
-    db.session.add(outfit)
-    db.session.commit()
-    return {"message": "Outfit created", "outfit_id": outfit.id}, 201
+    try:
+        data = request.get_json()
+        garments_data = data.get('garments', [])
+        date = data.get('date')
+
+        # Convert date from string to datetime.date object
+        date = datetime.strptime(date, '%Y-%m-%d').date()
+
+        outfit = Outfit(date=date)
+        db.session.add(outfit)
+
+        for garment_data in garments_data:
+            garment = Garment.query.get(garment_data['id'])
+            if not garment:
+                return {"message": f"Garment with id {garment_data['id']} not found"}, 404
+
+            # Add garment to outfit with positions
+            outfit.garments.append(garment)
+            db.session.flush()  # to ensure outfit.id is available
+
+            # Update the x_position, y_position, width and height in the association table
+            db.session.execute(
+                garments_outfits.update().\
+                where(garments_outfits.c.outfit_id==outfit.id).\
+                where(garments_outfits.c.garment_id==garment.id).\
+                values(
+                    x_position=garment_data.get('x_position', 0), 
+                    y_position=garment_data.get('y_position', 0),
+                    width=garment_data.get('width', 0),
+                    height=garment_data.get('height', 0)
+                )
+            )
+
+        db.session.commit()
+
+        return {"message": "Outfit created", "outfit_id": outfit.id}, 201
+
+    except Exception as e:
+        return jsonify(error=str(e)), 500
 
 @app.route('/api/get-outfit', methods=['GET'])
 def get_outfit():
@@ -177,8 +200,16 @@ def get_outfit():
         return {"message": "Outfit not found"}, 404
     # Access the associated garments
     garments = outfit.garments
-    # Now `garments` is a list of Garment objects associated with the outfit
-    garments_list = [garment.to_dict() for garment in garments]
+    garments_list = []
+    for garment in garments:
+        garment_outfit = db.session.query(garments_outfits).filter_by(garment_id=garment.id, outfit_id=outfit.id).first()
+        garments_list.append({
+            'id': garment.id,
+            'garment_image': garment.garment_image,  # replace with the actual property name
+            'name': garment.name,  # replace with the actual property name
+            'x_position': garment_outfit.x_position,
+            'y_position': garment_outfit.y_position
+        })
     return jsonify(garments_list)
 
 if __name__  == '__main__':
