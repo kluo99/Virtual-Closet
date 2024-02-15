@@ -84,6 +84,11 @@ function Calender( {selectedDate, setSelectedDate} ) {
   
     let datesArray = [];
   
+    // Add placeholders for the days before the first day of the month
+    for(let i = 0; i < firstDay.getDay(); i++) {
+      datesArray.push({ day: null, activeClass: '' });
+    }
+  
     for(let i = 1; i <= totalDays; i++) {
       const date = new Date(currentYear, currentMonth, i);
       const isActive = focusedDate && focusedDate.toDateString() === date.toDateString();
@@ -98,7 +103,7 @@ function Calender( {selectedDate, setSelectedDate} ) {
     if (showDatePicker) {
       updateModalCalendar();
     }
-  }, [showDatePicker]);
+  }, [showDatePicker, currentDate]);
 
 
   const handlePrevBtn = () => {
@@ -107,6 +112,14 @@ function Calender( {selectedDate, setSelectedDate} ) {
   
   const handleNextBtn = () => {
     setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() + 7)));
+  }
+
+  const handleModalPrevBtn = () => {
+    setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)));
+  }
+  
+  const handleModalNextBtn = () => {
+    setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)));
   }
 
   useEffect(() => {
@@ -122,7 +135,7 @@ function Calender( {selectedDate, setSelectedDate} ) {
         <div className="monthYear" id="monthYear">
           {currentDate.toDateString()}
           <button onClick={() => setShowDatePicker(true)}>
-            <i className="fa-solid fa-calendar"></i>
+          <img class="calender-icon" src="https://i.pinimg.com/originals/cd/8f/b3/cd8fb3a1168e5b702f1e6cb0c0d34859.jpg" alt="Open Date Picker" />
           </button>
         </div>
         <button id="nextBtn" onClick={handleNextBtn}>
@@ -136,13 +149,13 @@ function Calender( {selectedDate, setSelectedDate} ) {
         >
           <div className="calender">
             <div className="header">
-              <button id="prevBtn" onClick={handlePrevBtn}>
-                  <i className="fa-solid fa-chevron-left">&lt;</i>
-              </button>
-              <div className="monthYear" id="monthYear">{monthYear}</div>
-              <button id="nextBtn" onClick={handleNextBtn}>
-                  <i className="fa-solid fa-chevron-right">&gt;</i>
-              </button>
+            <button id="prevBtn" onClick={handleModalPrevBtn}>
+              <i className="fa-solid fa-chevron-left">&lt;</i>
+            </button>
+            <div className="monthYear" id="monthYear">{monthYear}</div>
+            <button id="nextBtn" onClick={handleModalNextBtn}>
+              <i className="fa-solid fa-chevron-right">&gt;</i>
+            </button>
             </div>
             <div className="days">
               <div className="day">Sun</div>

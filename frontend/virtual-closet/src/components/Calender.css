@@ -4,22 +4,24 @@
     box-sizing: border-box;
 } */
 
+/*
 body {
     min-height: 100vh;
     display: flex;
     margin: 0;
     padding: 0;
-    /* Remove these lines */
     align-items: center;
     justify-content: center;
-   
+    
 }
+/* Remove these lines */
+
 
 
 .calender {
     width: auto; /* Adjusts width based on content */
     /* max-width: 600px; Maximum width */
-    padding: 10px;
+    padding: 5px;
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
@@ -31,25 +33,25 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
+    padding: 5px;
 }
 
 .monthYear {
+    display: flex;
     text-align: center;
     font-weight: 600;
-    width: 150px;
 }
 
 .header button {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     border-radius: 50%;
     background: white;
     cursor: pointer;
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -60,7 +62,7 @@ body {
 
 .day {
     text-align: center;
-    padding: 5px;
+    padding: 2px;
     color: #999FA6;
     font-weight: 500;
 }
@@ -76,7 +78,7 @@ body {
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 10px;
+    padding: 5px;
     margin: auto;
     cursor: pointer;
     font-weight: 600;
@@ -109,3 +111,8 @@ body {
     margin-right: -50%;
     transform: translate(-50%, -50%);
   }
+
+.calender-icon {
+    width: 20px;
+    height: 20px;
+}

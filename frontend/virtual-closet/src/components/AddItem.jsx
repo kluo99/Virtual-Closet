@@ -88,10 +88,10 @@ function AddItem() {
 
     return(
     <div className="App">
-        <h2>Add Items:</h2>
+        <h2>Add Item:</h2>
         {/* Hidden file input triggered by label click */}
         <label htmlFor="fileInput" className="uploadArea">
-        +
+          {formData.file ? <img className="add-item-image" src={formData.file} alt="Uploaded" /> : '+'}
         </label>
         <input
           id="fileInput"
@@ -113,13 +113,13 @@ function AddItem() {
           <input type="text" id="price" name="price" onChange={handleInputChange} /><br />
           <input type="submit" value="Submit" />
         </form> 
-        <div className="closet-area">
+        {/* <div className="closet-area">
             {files.length > 0 &&
             files.map((file, index) => (
                 <img key={index} src={file} alt={`Uploaded ${index + 1}`} />
             ))}
 
-        </div>
+        </div> */}
       </div>
     )
 }

@@ -7,7 +7,7 @@ import { ImageContext } from './ImageProvider';
 function Closet() {
   const [garments, setGarments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 4;
   const { selectedImages, setSelectedImages } = useContext(ImageContext);
   const location = useLocation();
 
@@ -50,7 +50,7 @@ function Closet() {
 
   return (
     <div className='clothing-container'>
-      <p>Closet</p>
+      <p className='fake-logo'>Closet</p>
         <div className='closet-items'>
           {currentItems.map((garment, index) => (
             // <div key={index}>
@@ -59,6 +59,7 @@ function Closet() {
           ))}
         </div>
           <>
+          <div className="button-container">
             <button onClick={handlePrevClick} disabled={currentPage === 1}>
               Previous
             </button>
@@ -66,6 +67,7 @@ function Closet() {
               Next
             </button>
             <Link to="/add-item">Add Item</Link>
+          </div>
           </>
 
     </div>

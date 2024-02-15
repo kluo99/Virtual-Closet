@@ -9,8 +9,26 @@
   display: flex;
 }
 
-.image-grid-container {
+.fake-logo {
+  font-weight: 600;
+  font-size: larger;
+}
+
+.ImageGridWithEdit {
+  flex-grow: 1;
+  min-width: 500px; /* adjust as needed */
+}
+
+.flex-container {
   display: flex;
 }
+
+
+
+
+
+/* .image-grid-container {
+  display: flex;
+} */
 
 

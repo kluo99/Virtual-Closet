@@ -1,8 +1,8 @@
 .image-grid-container {
     border: black 1px solid;
     position: relative;
-    width: 100%;  /* Adjust as needed */
-    height: 100vh;  /* Adjust as needed */
+    height: 87vh; 
+    width: 40vw;
     /* display: flex;
     flex-wrap: wrap;
     justify-content: space-around; */
@@ -10,9 +10,14 @@
     margin: auto;
 }
 
-.add-image {
+.image-grid-container button {
+    height: 50px; /* or any other value */
+  }
+
+  .add-image {
     position: absolute;
     top: 50%;
-    left: auto;
-    transform: 'translate(-50%, -50%)';
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
 }

@@ -248,39 +248,37 @@ const handleResize = (id, newSize) => {
   const location = useLocation();
 
   return (
-    // <div className='image-grid-container'>
     <ErrorBoundary>
-      <div ref={drop} className='image-grid-container'>
-        {location.pathname === "/" && selectedImages.length === 0 && <Link to="/image-grid" className='add-image'>Add an outfit</Link>}
-        {selectedImages.map((image) => {
-  if (location.pathname === "/image-grid") {
-    return (
-      <DraggableResizableImage
-        src={image.garment_image}
-        alt={image.alt}
-        initialPosition={image.position}
-        initialSize={image.size}
-        onResize={(newDimensions) => handleResize(image.id, newDimensions)}
-        onDragStop={(newPosition) => handleDragStop(image.id, newPosition)}
-        onDelete={() => deleteImage(image.id)}
-      />
-    );
-  } else {
-    return (
-      <StaticImage
-        key={image.id}
-        src={image.garment_image}
-        alt={image.alt}
-        position={image.position}
-        size={image.size}
-      />
-    );
-  }
-})}
-      </div>
-      {location.pathname === "/image-grid" && <button onClick={saveOutfit}>Save Outfit</button>}
+        <div ref={drop} className='image-grid-container'>
+          {location.pathname === "/" && selectedImages.length === 0 && <Link to="/image-grid" className='add-image'>Add an outfit</Link>}
+          {selectedImages.map((image) => {
+            if (location.pathname === "/image-grid") {
+              return (
+                <DraggableResizableImage
+                  src={image.garment_image}
+                  alt={image.alt}
+                  initialPosition={image.position}
+                  initialSize={image.size}
+                  onResize={(newDimensions) => handleResize(image.id, newDimensions)}
+                  onDragStop={(newPosition) => handleDragStop(image.id, newPosition)}
+                  onDelete={() => deleteImage(image.id)}
+                />
+              );
+            } else {
+              return (
+                <StaticImage
+                  key={image.id}
+                  src={image.garment_image}
+                  alt={image.alt}
+                  position={image.position}
+                  size={image.size}
+                />
+              );
+            }
+          })}
+          {location.pathname === "/image-grid" && <button onClick={saveOutfit}>Save Outfit</button>}
+        </div>
     </ErrorBoundary>
-    // </div>
   );
 }
 

@@ -1,9 +1,10 @@
+import Calender from './Calender';
 import { useNavigate } from 'react-router-dom';
 import ImageGrid from './ImageGrid.jsx';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
-function ImageGridWithEdit({ selectedDate }) {
+function ImageGridWithEdit({ selectedDate, setSelectedDate }) {
   const navigate = useNavigate();
 
   const handleEdit = () => {
@@ -13,6 +14,8 @@ function ImageGridWithEdit({ selectedDate }) {
   return (
     <div>
       <DndProvider backend={HTML5Backend}>
+        <Calender select
+        edDate={selectedDate} setSelectedDate={setSelectedDate}/>
         <ImageGrid selectedDate={selectedDate}/>
       </DndProvider>
       <button onClick={handleEdit}>Edit</button>

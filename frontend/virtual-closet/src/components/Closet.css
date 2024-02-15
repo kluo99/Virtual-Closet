@@ -2,32 +2,40 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    justify-content: space-between;
+    min-height: 400px; /* Minimum height */
+    min-width: 100%; /* Minimum width */
 }
 
 .clothing-container {
     border: black 1px solid;
     padding: 20px;
-    margin: auto;
-    min-height: 600px;
-    width: 600px;
+    /* margin: auto; */
+    height: 100vh; 
+    width: 50%;
+    display: flex; 
+    flex-direction: column;
+    justify-content: space-between; 
+    align-items: stretch
 }
 
+
 .garment {
-    width: 100px; /* Set a default width */
-    height: 100px;/* Adjust as needed */
-    margin: 10px;  
+    width: 20vw;  
+    height: 20vw; 
+    margin: 1%; 
 }
 
 .garment img {
-    width: 100px; /* Set a default width */
-    height: 100px; /* Set a specific height */
-    object-fit: cover; /* This will ensure that your images cover the area without distorting their aspect ratios */
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
 }
 
 @media (max-width: 600px) {
     .clothing-container {
-        width: 100%;
-        height: auto;
+        width: 100%; /* Set a fixed width for smaller screens */
+        height: auto; /* You may want to allow the height to adjust on smaller screens to accommodate the content */
     }
 
     .garment {
@@ -42,15 +50,11 @@
 /* For screens between 600px and 900px */
 @media (min-width: 600px) and (max-width: 900px) {
     .clothing-container {
-        width: 100%;
-        height: auto;
+        width: 100%; /* Set a fixed width for medium screens */
+        height: auto; /* You may want to allow the height to adjust on medium screens to accommodate the content */
     }
 
     .garment {
         width: 50%;
-    }
-
-    .garment img {
-        height: 200px; /* Adjust as needed */
     }
 }

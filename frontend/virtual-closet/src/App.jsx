@@ -17,7 +17,7 @@ function App() {
   
   return (
     <Router>
-      <div>
+      <div className="fake-logo">
         <p>Virtual Closet</p>
       </div>
       <ImageProvider>
@@ -25,8 +25,10 @@ function App() {
         <Route path="/" element={
           <div className='main-container'>
             <Closet />
-            <Calender selectedDate={selectedDate} setSelectedDate={setSelectedDate}/>
-            <ImageGridWithEdit selectedDate={selectedDate} />
+            <ImageGridWithEdit className="ImageGridWithEdit" selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
+            {/* <div className='image-grid-calender'> */}
+              {/* <Calender selectedDate={selectedDate} setSelectedDate={setSelectedDate}/> */}
+            {/* </div> */}
           </div>
         } />
           <Route path="/closet" element={
@@ -36,7 +38,7 @@ function App() {
           } />
           <Route path="/add-item" element={<AddItem />} />
           <Route path="/image-grid" element={
-            <div>
+            <div className='flex-container'>
               <Closet />
               <DndProvider backend={HTML5Backend}>
                 <ImageGrid selectedDate={selectedDate}/>
