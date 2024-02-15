@@ -29,4 +29,5 @@ if __name__ == "__main__":
     with app.app_context():
         # so when you seed it deletes the table
         Garment.query.delete()
-        seed_closet()
+        # seed_closet()
+        # Garment.

@@ -27,9 +27,9 @@ function Closet() {
       .catch(error => console.error('Error:', error));
   }, []);
   // Wait for garments data to be fetched before rendering the component
-  if (garments.length === 0) {
-    return <div>Loading...</div>;
-  }
+  // if (garments.length === 0) {
+  //   return <div>Loading...</div>;
+  // }
 
   // Calculate the index of the first and last items on the current page
   const indexOfLastItem = currentPage * itemsPerPage;
