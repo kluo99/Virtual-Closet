@@ -3,7 +3,7 @@ This is a Virtual Closet application that is designed to help a user organize cl
 
 ## Features
 - **CRUD Operations:**
-  - Upload, view, edit, and delete garment pieces,
+  - Upload, view, edit, and delete garment pieces.
 - **Outfit Grids:**
   - User can create and customize outfits using Python and Javascript libraries such as Rembg and React-rnd,
 - **User Interface:**
